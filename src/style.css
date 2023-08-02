@@ -1,0 +1,39 @@
+body, html {
+    margin: auto;
+}
+#container {
+    width: 100vw;
+    height: 100vh;
+    margin: auto;
+    background-image: url(./assets/ocean_BG.png);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    text-align: center;
+    color: white
+}
+#heading {
+    margin: 0
+}
+#main {
+    display: flex;
+    justify-content: space-around;
+}
+.board {
+    display: grid;
+    grid-template-columns: repeat(10, 35px);
+    grid-template-rows: repeat(10, 35px);
+    grid-gap: 1px;
+}
+.gridsquare, .cpusquare {
+    background: transparent;
+    border: thin white solid;
+}
+
+.miss {
+    background: grey;
+    opacity: 70%;
+}
+div.hit {
+    background: red
+}
