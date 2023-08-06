@@ -8,6 +8,8 @@ function GameController() {
     let player1;
     let cpu;
     let lastHit = null
+    let cpuships = [2,3,3,4,5]
+
     
     const beginGame = () => {
         player1 = new player('playername')
@@ -26,20 +28,21 @@ function GameController() {
         rendercpuboard();
         addbuttons();
         setships();
+        addcpuships();
     }
     
-    const addplayership = (row,column,length,direction) => {
-        player1.gameboard.addShip(row,column,length,direction)
-    }
-    const addcpuship = (row,column,length,direction) => {
-        cpu.gameboard.addShip(row,column,length,direction)
-    }
+    async function playRound (e) {
+        cpu.gameboard.recieveAttack(e.target.dataset.row, e.target.dataset.column);
+        await timeout(2000);
 
-    const playRound = (e) => {
-        cpu.gameboard.recieveAttack(e.target.dataset.row, e.target.dataset.column)
         rendercpuboard();
+        if (cpu.gameboard.checklose() === true) alert('player win!');
         cpuattack();
+        await timeout(1500);
+
         renderplayerboard();
+        //move this back to game board, make the addhit function async then awa like this
+        if (player1.gameboard.checklose() === true) alert('player lose');
     }
 
     const cpuattack = () => {
@@ -123,10 +126,12 @@ function GameController() {
         const id = e.dataTransfer.getData('text/plain');
         const draggable = document.getElementById(id);
         // add it to the drop target
+        if (addshiptoboard(draggable, e.target) === false) return alert('invalid move, try again')
         e.target.appendChild(draggable);
-        addshiptoboard(draggable, e.target)
+        
         // display the draggable element
         draggable.classList.remove('hide');
+        draggable.setAttribute("draggable", false)
     }
     const changedirection = (e) => {
         if (e.target.value === "horizontal") 
@@ -152,8 +157,11 @@ function GameController() {
         shipimgs[i].style.transform = thisdirection;
         }
     }
+    const timeout = (ms) => {
+        return new Promise(resolve => setTimeout(resolve, ms))
+    }
+
     const addshiptoboard = (item, target) => {
-        // console.log(item)
         // console.log(target)
         const arrOfStrs = Array.from(String(target.id));
         //const arrOfNums = arrOfStrs.map((str) => Number(str));
@@ -164,8 +172,42 @@ function GameController() {
             column = Number(arrOfStrs[0])
         }
         let length = item.value
+        if (player1.gameboard.checkmove(row,column,length,getdirection()) === false) return false
+
         player1.gameboard.addShip(row,column,length,getdirection()) 
         player1.gameboard.board[row][column].shipsrc = item
+        renderplayerboard();
+        addbuttons();
+        return true
+    }
+    const getrandomnumber = () => {
+        return Math.floor(Math.random() * 10)
+    }
+    const randomdirection = () => {
+        let number = getrandomnumber()
+        if (number < 5) return "horizontal"
+        else return "vertical"
+    }
+    const addcpuships = () => {
+        if (cpuships.length == 0) {
+            rendercpuboard();
+            console.log(cpu.gameboard.board)
+            return 
+        }
+        let row = getrandomnumber();
+        let column = getrandomnumber();
+        let length = cpuships[0];
+        let direction = randomdirection();
+        if (cpu.gameboard.checkmove(row,column,length,direction) === false) return addcpuships();
+        console.log(row,column,length,direction)
+        rendercpuboard();
+        if (cpu.gameboard.addShip(row,column,length,direction) === false) {
+            console.log(cpu.gameboard.board)
+            return addcpuships();
+        }
+        cpuships.shift();
+        console.log(cpuships)
+        return addcpuships();
     }
     const renderplayerboard = () => {
         let playerboard = document.querySelector('#playerboard');
@@ -177,57 +219,106 @@ function GameController() {
         cpuboard.replaceChildren(DOMtool.renderboard(cpu.gameboard))
         addbuttons();
     }
-    // const calculatedattack = (row,column) => {
-    //     //check left hits
-    //     console.log(player1.gameboard.board[row][column])
-    //     if (player1.gameboard.board[row][column+1] !== undefined) 
-    //     {
-    //         if (player1.gameboard.board[row][column+1].isShot === false && player1.gameboard.board[row][column+1].hasShip === false) {
-    //             continue
-    //         }
-    //         if (player1.gameboard.board[row][column+1].isShot === false && player1.gameboard.board[row][column+1].hasShip === true) return player1.gameboard.recieveAttack(row,column+1)
-    //         else if (player1.gameboard.board[row][column+1].isShot === true && player1.gameboard.board[row][column+1].hasShip === true && column < 9) {
-    //             calculatedattack(row, column+1)
-    //         }
-    //     }
-    //     //check right hits
-    //     if (player1.gameboard.board[row][column-1] !== undefined)
-    //     {
-    //         if (player1.gameboard.board[row][column-1].isShot === false && player1.gameboard.board[row][column-1].hasShip === true) return player1.gameboard.recieveAttack(row,column-1)
-    //         else if (player1.gameboard.board[row][column-1].isShot === true && player1.gameboard.board[row][column-1].hasShip === true && column > 0) {
-    //             calculatedattack(row, column-1)
-    //         }
-    //     }
-    //     //go down
-    //     if  (player1.gameboard.board[row-1][column] !== undefined) 
-    //     {
-    //         if (player1.gameboard.board[row-1][column].isShot === false && player1.gameboard.board[row][column-1].hasShip === true) return player1.gameboard.recieveAttack(row-1,column)
-    //         else if (player1.gameboard.board[row-1][column].isShot === true && player1.gameboard.board[row-1][column].hasShip === true && row > 0) {
-    //             calculatedattack(row-1, column);
-    //         }
-    //     }
-    //     //go up
-    //     if (player1.gameboard.board[row+1][column] !== undefined) 
-    //     {
-    //         if (player1.gameboard.board[row+1][column].isShot === false && player1.gameboard.board[row][column-1].hasShip === true) return player1.gameboard.recieveAttack(row+1,column)
-    //         else if (player1.gameboard.board[row+1][column].isShot === true && player1.gameboard.board[row+1][column].hasShip === true && row < 9) {
-    //             calculatedattack(row+1, column);
-    //         }
-    //     }
-    //     //reset
-    //     else {
-    //         lastHit = null
-    //         randomattack();
-    //     }
-    // }
-    // const checkright = (row,column) => {};
-    // const checkleft = (row,column) => {}
-    // const checkup = (row,column) => {}
-    // const checkdown = (row,column) => {}
+    const calculatedattack = (row,column) => {
+        if (checkleft(row,column) == 'a') return
+        
+        else if (checkright(row,column) == 'a') return
+        
+        else if (checkdown(row,column) == 'a') return
+
+        else if (checkup(row,column) === 'a') return
+        
+        else {
+            console.log('the end');
+            lastHit = null
+            randomattack();
+            }
+        }
+
+    const checkright = (oldrow,oldcolumn) => {
+        console.log('rightcheck')
+        let row = oldrow
+        let column = oldcolumn
+        if (player1.gameboard.board[row][column+1] === undefined) return 'c'
+
+        else if (player1.gameboard.board[row][column+1] !== undefined) 
+        {
+            if (player1.gameboard.board[row][column+1].isShot === false && player1.gameboard.board[row][column+1].hasShip === true) { 
+                player1.gameboard.recieveAttack(row,column+1)
+                return 'a'
+            } else if (column < 9 && player1.gameboard.board[row][column+1].isShot === true && player1.gameboard.board[row][column+1].hasShip === true) {
+                return checkright(row, column+1)
+            }
+            else if (player1.gameboard.board[row][column+1].hasShip === false) {
+                return 'l'
+            }
+            else return 'c_1'            
+        }
+        else return 'r'
+    };
+    const checkleft = (oldrow,oldcolumn) => {
+        //check left hits
+        console.log('leftcheck')
+        let row = oldrow
+        let column = oldcolumn
+        if (player1.gameboard.board[row][column-1] === undefined) return 'b'
+        else if (player1.gameboard.board[row][column-1] !== undefined) 
+        {
+            if (player1.gameboard.board[row][column-1].isShot === false && player1.gameboard.board[row][column-1].hasShip === true) {
+                player1.gameboard.recieveAttack(row,column-1) 
+                return 'a'
+            } else if (column < 9 && player1.gameboard.board[row][column-1].isShot === true && player1.gameboard.board[row][column-1].hasShip === true) {
+                return checkleft(row, column-1)
+            }
+            else if (player1.gameboard.board[row][column-1].hasShip === false) {
+                return 'l'
+            } else return 'b_1'
+        }
+        else return 'r'
+    }
+    
+    const checkup = (oldrow,oldcolumn) => {
+        //go up
+        console.log('upcheck')
+        let row = oldrow
+        let column = oldcolumn
+        if (player1.gameboard.board[row+1] === undefined) return 'd'
+
+        else if (player1.gameboard.board[row+1] !== undefined) {
+            if (player1.gameboard.board[row+1][column].isShot === false && player1.gameboard.board[row+1][column].hasShip === true) {
+                player1.gameboard.recieveAttack(row+1,column)
+                return 'a'
+            } else if (row < 9 && player1.gameboard.board[row+1][column].isShot === true && player1.gameboard.board[row+1][column].hasShip === true) {
+                return checkup(row+1, column);
+            } else if (player1.gameboard.board[row+1][column].hasShip === false) {
+                    return 'l'
+            } else return 'd_1'
+            }
+            else return 'r'
+        }
+    const checkdown = (oldrow,oldcolumn) => {
+        console.log('downcheck')
+        let row = oldrow
+        let column = oldcolumn
+        if  (player1.gameboard.board[row-1] === undefined) return 'e'
+        else if  (player1.gameboard.board[row-1] !== undefined) {
+            if (player1.gameboard.board[row-1][column].isShot === false && player1.gameboard.board[row-1][column].hasShip === true) {
+                player1.gameboard.recieveAttack(row-1,column)
+                console.log(player1.gameboard.board[row-1][column])
+                return 'a'
+            } else if (row > 0 && player1.gameboard.board[row-1][column].isShot === true && player1.gameboard.board[row-1][column].hasShip === true) {
+                return checkdown(row-1, column);
+            } else if (player1.gameboard.board[row-1][column].hasShip === false) {
+                return 'l'
+            }
+            else return 'e_1'
+        }
+        else return 'r'
+    }
 
     const randomattack = () => {
-        const row = Math.floor(Math.random() * 9);
-        const column = Math.floor(Math.random() * 9);
+        const row = Math.floor(Math.random() * 10);
+        const column = Math.floor(Math.random() * 10);
         
         if (player1.gameboard.board[row][column].isShot === true) {
             randomattack();
@@ -245,7 +336,7 @@ function GameController() {
 
     const getActivePlayer = () => activePlayer;
 
-    return {beginGame, getplayerboard, getplayer, playRound, addplayership, addcpuship, getcpuboard, cpuattack,
+    return {beginGame, getplayerboard, getplayer, playRound, getcpuboard, cpuattack,
     randomattack, getlastHit, addbuttons}
 }
 

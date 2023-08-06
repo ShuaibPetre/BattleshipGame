@@ -31,9 +31,41 @@ body, html {
 }
 
 .miss {
-    background: grey;
-    opacity: 70%;
+    background: rgba(128,128,128,0.4);
 }
-div.hit {
+
+.shipsquare {
+    background: rgba(128,128,128,0.4);
+}
+.hit {
+    background: rgba(255,0,0,0.3)
+}
+.ship {
+    position: relative;
+    left: 0;
+    margin: auto;
+    transform-origin: 20px;
+}
+#ship1 {
+    width: 80px;
+    height: 35px;
+}
+#ship2 {
+    width: 105px;
+    height: 35px;
+}
+#ship3 {
+    width: 105px;
+    height: 35px;
+}
+#ship4 {
+    width: 140px;
+    height: 35px;
+}
+#ship5 {
+    width: 175px;
+    height: 35px;
+}
+.cpushipsquare {
     background: red
 }

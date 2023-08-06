@@ -20,6 +20,11 @@ module.exports = {
           test: /\.(ttf|eot|svg)$/,
           type: 'asset/resource',
         },
+        {
+          test: /\.mp3$/,
+          loader: 'file-loader',
+          type: "asset/resource",
+        },
       ],
     },
     mode: 'development',

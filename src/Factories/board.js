@@ -1,5 +1,8 @@
 const ship = require("./shipyard")
 const gridsquare = require("./squares")
+const fire = require(`../assets/Sounds/fire_shot.mp3`).default
+const hit = require(`../assets/Sounds/shot_hit.mp3`).default
+const miss = require(`../assets/Sounds/shot_miss.mp3`).default
 
 class Gameboard {
     constructor(player) {
@@ -27,13 +30,14 @@ class Gameboard {
         }
 
     addShip = (row , column, lengths, direction) => {
-        if (this.checkmove() === false) return false
+        if (this.checkmove(row,column,lengths,direction) === false) return alert('wrong move')
+
         let thisShip = new ship(lengths)
         thisShip.shiprow = row
         thisShip.shipcolumn = column
         this.ships.push(thisShip)
         if (direction === 'horizontal') {
-            for (let i = 0; i < lengths; i++) { 
+            for (let i = 1; i < lengths; i++) { 
                 this.board[row][column+i].hasShip = true
                 this.board[row][column+i].shiprow = row
                 this.board[row][column+i].shipcolumn = column
@@ -41,30 +45,49 @@ class Gameboard {
         }
         else if (direction === 'vertical') {
             //change this to value same as top
-            for (let i = 0; i < lengths; i++) {
-                this.board[row + i][column].hasShip = true  
-                this.board[row + i][column].shiprow = row
-                this.board[row + i][column].shipcolumn = column      
+            for (let i = 1; i < lengths; i++) {
+                this.board[row+i][column].hasShip = true  
+                this.board[row+i][column].shiprow = row
+                this.board[row+i][column].shipcolumn = column      
             }
         }
         this.board[row][column] = thisShip
     }
-
-    recieveAttack(row,column) {
+    timeout = (ms) => {
+        return new Promise(resolve => setTimeout(resolve, ms))
+    }
+    async recieveAttack(row,column) {
         if (this.board[row][column].isShot === true) return false
         this.board[row][column].isShot = true
-
+        this.playsound(fire)
+        await this.timeout(1400)
         if (this.board[row][column].hasShip === true) {
-        let shiprow = this.board[row][column].shiprow
-        let shipcolumn = this.board[row][column].shipcolumn
-        this.board[shiprow][shipcolumn].hit(); 
+            let shiprow = this.board[row][column].shiprow
+            let shipcolumn = this.board[row][column].shipcolumn
+            this.board[shiprow][shipcolumn].hit(); 
+            this.playsound(hit)
+        } else {
+            this.playsound(miss)
         }
     }
+    playsound(sound) {
+        let shoot1 = new Audio(sound)
+        console.log(shoot1)
+        shoot1.play()
+    }
+    checkmove(row, column, length, direction) {
+        for (let i = 0; i < length; i++) {
+            if (direction === "horizontal") {
 
-    checkmove(row, column, length) {
-        for (let i = 0; i < Number(length); i++) {
-            if (this.board[row][column+i].hasShip === true) return false
+                if (this.board[row][column+i] == undefined || this.board[row][column+i].hasShip === true) {
+                    return false
+                }
+            } else if (direction === "vertical") {
+                if (this.board[row+i] == undefined || this.board[row+i][column].hasShip === true) {
+                        return false
+                    }
             }
+        }
         return true
     }
 

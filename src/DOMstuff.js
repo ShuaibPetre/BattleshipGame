@@ -67,10 +67,15 @@ function DOMtool() {
         ship5.value = 5
 
         ship1.setAttribute("id","ship1");
+        ship1.classList.add('ship')
         ship2.setAttribute("id","ship2");
+        ship2.classList.add('ship')
         ship3.setAttribute("id","ship3");
+        ship3.classList.add('ship')
         ship4.setAttribute("id","ship4");
+        ship4.classList.add('ship')
         ship5.setAttribute("id","ship5");
+        ship5.classList.add('ship')
 
         header.appendChild(heading);
         header.appendChild(description)
@@ -104,18 +109,24 @@ function DOMtool() {
                 if (board.board[i][j].isShot === true && board.board[i][j].hasShip === true) square.classList.add('hit')
                 else if (board.board[i][j].isShot === true && board.board[i][j].hasShip === false) square.classList.add('miss')
                 // cpu board
-                if (board.player !== 'cpu' && board.board[i][j].isShot === false) {
+                if (board.player !== 'cpu') {
+                    if (board.board[i][j].hasShip !== false) {
+                        square.classList.add('shipsquare')
+                        }
                     square.classList.add('playersquare')
                     if (board.board[i][j].isShip === true)
                     {
                         //const image = new Image()
                         const image = board.board[i][j].shipsrc
-                         square.appendChild(image)
+                        square.appendChild(image)
+                        
                     } 
                 }
                 if (board.player === 'cpu' && board.board[i][j].isShot === false) {
                     square.classList.add('cpusquare')
+                    if(board.board[i][j].hasShip === true) square.classList.add('cpushipsquare')
                 }
+
                 grid.appendChild(square)
         }}
         return grid
