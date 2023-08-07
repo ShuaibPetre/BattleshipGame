@@ -29,7 +29,6 @@ class Gameboard {
             }
             return this.board = board
         }
-
     addShip = (row , column, lengths, direction) => {
         if (this.checkmove(row,column,lengths,direction) === false) return alert('wrong move')
 
