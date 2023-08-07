@@ -1,9 +1,22 @@
+@font-face {
+    font-family: 'MyFont';
+    src: url('./assets/my-font.ttf') format('woff');
+  }
+  @font-face {
+    font-family: "MyFont1";
+    src: url("./assets/myfont2.ttf") format("woff");
+    font-weight: 600;
+    font-style: normal;
+  }
 body, html {
     margin: auto;
 }
+:root {
+    font-size: 16px;
+}
 #container {
     width: 100vw;
-    height: 100vh;
+    height: auto;
     margin: auto;
     background-image: url(./assets/ocean_BG.png);
     background-size: cover;
@@ -12,17 +25,23 @@ body, html {
     text-align: center;
     color: white
 }
+#header {
+    display: flex;
+    flex-direction: column;
+}
 #heading {
-    margin: 0
+    margin: 0;
+    font-family: "MyFont1";
 }
 #main {
     display: flex;
     justify-content: space-around;
+    padding-bottom: 5vh;
 }
 .board {
     display: grid;
-    grid-template-columns: repeat(10, 35px);
-    grid-template-rows: repeat(10, 35px);
+    grid-template-columns: repeat(10, 3.4vw);
+    grid-template-rows: repeat(10, 3.4vw);
     grid-gap: 1px;
 }
 .gridsquare, .cpusquare {
@@ -47,25 +66,100 @@ body, html {
     transform-origin: 20px;
 }
 #ship1 {
-    width: 80px;
-    height: 35px;
+    width: 8.2vw;
+    height: 3.4vw;
 }
 #ship2 {
-    width: 105px;
-    height: 35px;
+    width: 11.5vw;
+    height: 3.4vw;
 }
 #ship3 {
-    width: 105px;
-    height: 35px;
+    width: 10.5vw;
+    height: 3.4vw;
 }
 #ship4 {
-    width: 140px;
-    height: 35px;
+    width: 14vw;
+    height: 3.4vw;
 }
 #ship5 {
-    width: 175px;
-    height: 35px;
+    width: 17.5vw;
+    height: 3.4vw;
 }
-.cpushipsquare {
-    background: red
+
+#description {
+    align-self: center;
+    width: 60%;
+    height: 3rem;
+    background: rgba(128,128,128,0.4);
+    text-align: center;
+    border: double thin white;
+    border-radius: 15%;
+    font-family: "MyFont1";
+    font-size: 1.5rem;
+    padding-top: 5vh;
+}
+#hide {
+    display:none;
+}
+
+#shipdiv {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    width: 36vw;
+    height: 28vw
+}
+
+#shipdirection {
+    width: 50px;
+    height: 40px;
+    background: url('./assets/rotate.png');
+    align-self: center;
+    border: none;
+}
+#shiptitle {
+    width: 100%;
+    height: 3rem;
+}
+#gameoverdiv, #gameoverlose, #startscreen {
+    position: absolute;
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    background-color: #36096d;
+    background-image: linear-gradient(315deg, #36096d 0%, #39b9b9 74%);
+    top: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 25vh;
+}
+#gameoverheading {
+    padding-top: 20vh;
+    font-size: 3rem;
+    font-family: 'MyFont';
+}
+#restart {
+    width: 120px;
+    height: 50px;
+    justify-self: center;
+    text-align: center;
+    border: thin double white; 
+    justify-items: baseline;
+    padding-top: 20px;
+    font-size: 1.5rem;
+    font-family: "MyFont1";
+}
+#gameoverlose {
+    background-color: #501435;
+    background-image: linear-gradient(315deg, #36096d 0%, #9e1c48 74%);
+}
+#startscreen {
+    background-color: #1b018f;
+    background-image: linear-gradient(315deg, #0f094d 0%, #1a27dd 74%);
+}
+#playerboardname, #cpuboardname, #shiptitle {
+    font-family: "MyFont1";
+    font-size: 1.3rem;
+    padding: 3vh;
 }

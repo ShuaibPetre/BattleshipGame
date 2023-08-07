@@ -1,3 +1,4 @@
+const DOMstuff = require("../DOMstuff")
 const ship = require("./shipyard")
 const gridsquare = require("./squares")
 const fire = require(`../assets/Sounds/fire_shot.mp3`).default
@@ -56,25 +57,28 @@ class Gameboard {
     timeout = (ms) => {
         return new Promise(resolve => setTimeout(resolve, ms))
     }
-    async recieveAttack(row,column) {
+    async recieveAttack(row,column, player) {
         if (this.board[row][column].isShot === true) return false
         this.board[row][column].isShot = true
-        this.playsound(fire)
-        await this.timeout(1400)
+        //this.playsound(fire)
+        let shoo = new Audio(fire)
+        shoo.play();
         if (this.board[row][column].hasShip === true) {
             let shiprow = this.board[row][column].shiprow
             let shipcolumn = this.board[row][column].shipcolumn
             this.board[shiprow][shipcolumn].hit(); 
-            this.playsound(hit)
+            DOMstuff.infodiv("it's a hit!", player)
+            await this.timeout(1200)
+            let hit1 = new Audio(hit)
+            hit1.play()
         } else {
-            this.playsound(miss)
+            DOMstuff.infodiv('misses', player)
+            await this.timeout(1200)
+            let miss1 = new Audio(miss)
+            miss1.play();
         }
     }
-    playsound(sound) {
-        let shoot1 = new Audio(sound)
-        console.log(shoot1)
-        shoot1.play()
-    }
+
     checkmove(row, column, length, direction) {
         for (let i = 0; i < length; i++) {
             if (direction === "horizontal") {

@@ -20,6 +20,7 @@ function DOMtool() {
         let cpuboardname = document.createElement('div');
         let cpuboard = document.createElement('div');
         let shipdiv = document.createElement('div');
+        let shiptitle = document.createElement('div')
         let shipdirection = document.createElement("BUTTON");
         let ship1 = document.createElement("img");
         let ship2 = document.createElement('img');
@@ -47,11 +48,14 @@ function DOMtool() {
         playerboard.setAttribute("id","playerboard")
 
         rightside.setAttribute("id","rightside")
+        rightside.setAttribute("id","hide")
         cpuboardname.setAttribute("id","cpuboardname");
         cpuboardname.textContent = 'ENEMY BOARD';
         cpuboard.setAttribute("id","cpuboard")
 
         shipdiv.setAttribute("id","shipdiv");
+        shiptitle.setAttribute("id","shiptitle");
+        shiptitle.textContent = "Place your ships (drag and drop)"
         shipdirection.setAttribute("id","shipdirection");
         shipdirection.value = 'horizontal'
 
@@ -85,16 +89,17 @@ function DOMtool() {
         leftside.appendChild(playerboard)
         rightside.appendChild(cpuboardname);
         rightside.appendChild(cpuboard)
+        shipdiv.appendChild(shiptitle)
         shipdiv.appendChild(shipdirection)
         shipdiv.appendChild(ship1);
         shipdiv.appendChild(ship2);
         shipdiv.appendChild(ship3);
         shipdiv.appendChild(ship4);
         shipdiv.appendChild(ship5);
+        main.appendChild(shipdiv)
         container.appendChild(header)
         container.appendChild(main)
-        container.appendChild(shipdiv)
-        document.body.appendChild(container)
+        document.body.replaceChildren(container)
     }
     
     const renderboard = (board) => {
@@ -132,11 +137,65 @@ function DOMtool() {
         return grid
     }
 
-    const addbuttons = () => {
-        document.querySelectorAll('')
+    const infodiv = (outcome,player) => {
+        document.querySelector('#description').textContent = '';
+        let text = player + ' fires a shot and... ' + outcome;
+        let txt = outcome
+        var i = 0;
+        var speed = 70;
+        typeWriter(text);
+        function typeWriter() {
+            if (i < text.length) {
+              document.getElementById("description").innerHTML += text.charAt(i);
+              i++;
+              setTimeout(typeWriter, speed);
+            }
+          }
+    }
+    function gameOverWin() {
+        let container = document.querySelector('#container');
+        let div = document.createElement('div');
+        let gameoverheading = document.createElement('div');
+        let button = document.createElement('div');
+        gameoverheading.textContent = 'YOU WIN!'
+        button.setAttribute('id','restart')
+        button.textContent = "Replay";
+        gameoverheading.setAttribute('id','gameoverheading');
+
+        div.setAttribute('id','gameoverdiv');
+        div.appendChild(gameoverheading)
+        div.appendChild(button)
+        container.appendChild(div)
+    }
+    function gameOverLose() {
+        let container = document.querySelector('#container');
+        let div = document.createElement('div');
+        let gameoverheading = document.createElement('div');
+        let button = document.createElement('div');
+        gameoverheading.textContent = 'YOU LOSE'
+        button.setAttribute('id','restart');
+        button.textContent = "Replay";
+        gameoverheading.setAttribute('id','gameoverheading');
+        div.setAttribute('id','gameoverlose');
+        div.appendChild(gameoverheading)
+        div.appendChild(button)
+        container.appendChild(div)
     }
 
-    return {initialLoad, renderboard, addbuttons}
+    function startScreen() {
+        let div = document.createElement('div');
+        let gameoverheading = document.createElement('div');
+        let button = document.createElement('div');
+        gameoverheading.textContent = 'BATTLESHIP'
+        button.setAttribute('id','restart');
+        button.textContent = "Start";
+        gameoverheading.setAttribute('id','gameoverheading');
+        div.setAttribute('id','startscreen');
+        div.appendChild(gameoverheading)
+        div.appendChild(button)
+        document.body.appendChild(div)
+    }
+    return {initialLoad, renderboard, infodiv, gameOverWin, gameOverLose, startScreen}
 }
 
 module.exports = DOMtool()

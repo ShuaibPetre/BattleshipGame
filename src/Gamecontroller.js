@@ -10,7 +10,11 @@ function GameController() {
     let lastHit = null
     let cpuships = [2,3,3,4,5]
 
-    
+    function gameStart() {
+        DOMtool.startScreen();
+        let button = document.querySelector('#restart')
+            button.addEventListener('click', restart);
+    }
     const beginGame = () => {
         player1 = new player('playername')
         cpu = new player('cpu')
@@ -29,20 +33,31 @@ function GameController() {
         addbuttons();
         setships();
         addcpuships();
+        
     }
-    
+    function restart() {
+        beginGame();
+    }
     async function playRound (e) {
-        cpu.gameboard.recieveAttack(e.target.dataset.row, e.target.dataset.column);
-        await timeout(2000);
-
+        removebuttons();
+        cpu.gameboard.recieveAttack(e.target.dataset.row, e.target.dataset.column, "Player");
+        await timeout(1800);
         rendercpuboard();
-        if (cpu.gameboard.checklose() === true) alert('player win!');
-        cpuattack();
         await timeout(1500);
-
+        if (cpu.gameboard.checklose() === true) {
+            DOMtool.gameOverWin();
+            let button = document.querySelector('#restart')
+            button.addEventListener('click', restart);
+            return }
+        cpuattack();
+        await timeout(1800);
         renderplayerboard();
         //move this back to game board, make the addhit function async then awa like this
-        if (player1.gameboard.checklose() === true) alert('player lose');
+        if (player1.gameboard.checklose() === true)  {
+            DOMtool.gameOverLose();
+            let button = document.querySelector('#restart')
+            button.addEventListener('click', restart);
+            return }
     }
 
     const cpuattack = () => {
@@ -84,7 +99,15 @@ function GameController() {
                 j++
         })
     }
-
+    function removebuttons() {
+        let cpusquare = document.querySelectorAll('.cpusquare')
+        let j = 0
+        cpusquare.forEach(
+            function(node) {
+                node.removeEventListener('click', playRound);
+                j++
+        })
+    }
     const setships = () => {
         const shipdirection = document.querySelector('#shipdirection')
         shipdirection.addEventListener("click",changedirection)
@@ -98,6 +121,7 @@ function GameController() {
         ship4.addEventListener("dragstart",dragStart)
         const ship5 = document.querySelector('#ship5')
         ship5.addEventListener("dragstart",dragStart)
+        
     }
 
     function dragStart(e) {
@@ -128,10 +152,23 @@ function GameController() {
         // add it to the drop target
         if (addshiptoboard(draggable, e.target) === false) return alert('invalid move, try again')
         e.target.appendChild(draggable);
-        
+        renderplayerboard();
+        addbuttons();
         // display the draggable element
         draggable.classList.remove('hide');
         draggable.setAttribute("draggable", false)
+        checkshipdiv()
+
+    }
+    function checkshipdiv() {
+        let shipdivimgs = document.querySelector('#shipdiv').getElementsByTagName('img');
+        let shipdiv = document.querySelector('#shipdiv')
+        let leftside = document.querySelector('#hide')
+        if (shipdivimgs.length <= 0) {
+            leftside.removeAttribute('id','hide');
+            shipdiv.setAttribute('id','hide');
+            leftside.setAttribute('id','leftside')
+        }
     }
     const changedirection = (e) => {
         if (e.target.value === "horizontal") 
@@ -153,7 +190,6 @@ function GameController() {
         if (getdirection() === 'vertical') thisdirection = 'rotate(90deg)'
         let shipimgs = document.querySelector('#shipdiv').getElementsByTagName('img');
         for(var i = 0; i < shipimgs .length; i++) {
-        console.log(shipimgs[i]);
         shipimgs[i].style.transform = thisdirection;
         }
     }
@@ -214,9 +250,11 @@ function GameController() {
         playerboard.replaceChildren(DOMtool.renderboard(player1.gameboard))
     }
 
-    const rendercpuboard = () => {
+    async function rendercpuboard() {
         let cpuboard = document.querySelector('#cpuboard')
         cpuboard.replaceChildren(DOMtool.renderboard(cpu.gameboard))
+        removebuttons()
+        await timeout(4000);
         addbuttons();
     }
     const calculatedattack = (row,column) => {
@@ -244,7 +282,7 @@ function GameController() {
         else if (player1.gameboard.board[row][column+1] !== undefined) 
         {
             if (player1.gameboard.board[row][column+1].isShot === false && player1.gameboard.board[row][column+1].hasShip === true) { 
-                player1.gameboard.recieveAttack(row,column+1)
+                player1.gameboard.recieveAttack(row,column+1, "CPU")
                 return 'a'
             } else if (column < 9 && player1.gameboard.board[row][column+1].isShot === true && player1.gameboard.board[row][column+1].hasShip === true) {
                 return checkright(row, column+1)
@@ -265,7 +303,7 @@ function GameController() {
         else if (player1.gameboard.board[row][column-1] !== undefined) 
         {
             if (player1.gameboard.board[row][column-1].isShot === false && player1.gameboard.board[row][column-1].hasShip === true) {
-                player1.gameboard.recieveAttack(row,column-1) 
+                player1.gameboard.recieveAttack(row,column-1, "CPU") 
                 return 'a'
             } else if (column < 9 && player1.gameboard.board[row][column-1].isShot === true && player1.gameboard.board[row][column-1].hasShip === true) {
                 return checkleft(row, column-1)
@@ -286,7 +324,7 @@ function GameController() {
 
         else if (player1.gameboard.board[row+1] !== undefined) {
             if (player1.gameboard.board[row+1][column].isShot === false && player1.gameboard.board[row+1][column].hasShip === true) {
-                player1.gameboard.recieveAttack(row+1,column)
+                player1.gameboard.recieveAttack(row+1,column, "CPU")
                 return 'a'
             } else if (row < 9 && player1.gameboard.board[row+1][column].isShot === true && player1.gameboard.board[row+1][column].hasShip === true) {
                 return checkup(row+1, column);
@@ -303,7 +341,7 @@ function GameController() {
         if  (player1.gameboard.board[row-1] === undefined) return 'e'
         else if  (player1.gameboard.board[row-1] !== undefined) {
             if (player1.gameboard.board[row-1][column].isShot === false && player1.gameboard.board[row-1][column].hasShip === true) {
-                player1.gameboard.recieveAttack(row-1,column)
+                player1.gameboard.recieveAttack(row-1,column, "CPU")
                 console.log(player1.gameboard.board[row-1][column])
                 return 'a'
             } else if (row > 0 && player1.gameboard.board[row-1][column].isShot === true && player1.gameboard.board[row-1][column].hasShip === true) {
@@ -323,7 +361,7 @@ function GameController() {
         if (player1.gameboard.board[row][column].isShot === true) {
             randomattack();
         }
-        player1.gameboard.recieveAttack(row,column);
+        player1.gameboard.recieveAttack(row,column, "CPU");
         lastHit = player1.gameboard.board[row][column]
         lastHit.rowvalue = row;
         lastHit.columnvalue = column;
@@ -337,7 +375,7 @@ function GameController() {
     const getActivePlayer = () => activePlayer;
 
     return {beginGame, getplayerboard, getplayer, playRound, getcpuboard, cpuattack,
-    randomattack, getlastHit, addbuttons}
+    randomattack, getlastHit, addbuttons, gameStart}
 }
 
 module.exports = GameController()
