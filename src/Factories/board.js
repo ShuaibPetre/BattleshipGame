@@ -1,9 +1,9 @@
 const DOMstuff = require("../DOMstuff")
 const ship = require("./shipyard")
 const gridsquare = require("./squares")
-const fire = require(`../assets/Sounds/fire_shot.mp3`).default
-const hit = require(`../assets/Sounds/shot_hit.mp3`).default
-const miss = require(`../assets/Sounds/shot_miss.mp3`).default
+const fire = require(`../assets/Sounds/fire_shot.mp3`)
+const hit = require(`../assets/Sounds/shot_hit.mp3`)
+const miss = require(`../assets/Sounds/shot_miss.mp3`)
 
 class Gameboard {
     constructor(player) {
